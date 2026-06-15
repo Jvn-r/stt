@@ -1,16 +1,45 @@
-# React + Vite
+# Live Speech-to-Text Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small web app with authentication (Nhost) and a live, real-time speech-to-text dashboard (Deepgram).
 
-Currently, two official plugins are available:
+**Live demo:** https://stt-mocha-two.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- **Frontend:** React + Vite
+- **Auth:** Nhost (email + password, session persistence via refresh tokens)
+- **Speech-to-text:** Deepgram streaming API (`nova-2` model) over WebSocket
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## How it works
 
-## Expanding the ESLint configuration
+1. **Login / Signup page** — a single form toggles between sign up and log in. Nhost handles account creation, authentication, and keeps the user logged in across page refreshes using a stored refresh token.
+2. **Protected dashboard** — the app checks `useAuthenticationStatus()`. Unauthenticated users only ever see the login form; the dashboard component is never rendered for them.
+3. **Live transcription** — on the dashboard, clicking "Start Speaking":
+   - Requests mic access via `getUserMedia`
+   - Opens a WebSocket directly to Deepgram's `/v1/listen` endpoint (browser-side, using the API key as a WebSocket subprotocol token)
+   - Streams audio chunks from `MediaRecorder` (250ms intervals, webm/Opus) to Deepgram
+   - Renders interim (gray, live-updating) and final (black, committed) transcript text as it arrives
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Running locally
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+You'll need to set:
+- \`src/nhost.js\` — your Nhost project's \`subdomain\` and \`region\`
+- \`src/Dashboard.jsx\` — your Deepgram API key (\`DEEPGRAM_API_KEY\`)
+
+Also add your local dev URL (e.g. \`http://localhost:5173\`) and your deployed URL to Nhost's allowed redirect URLs (Auth settings).
+
+## Notes & tradeoffs
+
+- The Deepgram API key is used client-side for simplicity and speed. In a production setting this would be proxied through a backend to avoid exposing the key.
+- Email verification is disabled in Nhost for this demo to keep the signup -> dashboard flow frictionless.
+- No router is used -- the dashboard is gated purely by auth state, since the app only has two views.
+
+## Known issues / things to improve with more time
+
+- Visual indicator while waiting for mic permission
+- Clear transcript / export transcript option
