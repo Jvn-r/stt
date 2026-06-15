@@ -2,6 +2,8 @@
 
 A small web app with authentication (Nhost) and a live, real-time speech-to-text dashboard (Deepgram).
 
+Built in ~1 hour, start to finish, from npm create vite to this README(first commit of readme, i realized later to emphasize on this fact), including debugging Nhost auth (email verification, refresh token persistence, allowed redirect URLs) and wiring up live Deepgram streaming, to finally setting up vercel and deploying it.
+
 **Live demo:** https://stt-mocha-two.vercel.app
 
 ## Stack
