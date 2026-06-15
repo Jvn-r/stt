@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useSignOut, useUserEmail } from '@nhost/react'
 
-const DEEPGRAM_API_KEY = import.meta.env.VITE_DATAGRAM_API_KEY;
+const DEEPGRAM_API_KEY = import.meta.env.VITE_DEEPGRAM_API_KEY;
 
 function Dashboard() {
   const { signOut } = useSignOut()
